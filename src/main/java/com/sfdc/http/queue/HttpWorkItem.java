@@ -1,7 +1,6 @@
 package com.sfdc.http.queue;
 
 import com.ning.http.client.Cookie;
-import com.sfdc.http.client.handler.StatefulHandler;
 import com.sfdc.http.client.handler.ThrottlingGenericAsyncHandler;
 
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.List;
  *         Date: 11/20/12
  *         Time: 4:17 PM
  */
-public class HttpWorkItem  {
+public class HttpWorkItem {
 
     private String instance;
     private List<Cookie> cookies;
@@ -23,9 +22,6 @@ public class HttpWorkItem  {
     public static final String PUT = "PUT";
     public static final String HEAD = "HEAD";
 
-
-    public void setSessionId(String s) {
-    }
 
     public void setInstance(String i) {
         this.instance = i;
@@ -43,10 +39,6 @@ public class HttpWorkItem  {
         this.handler = handler;
     }
 
-    public String getSessionId() {
-        return null;
-    }
-
     public String getInstance() {
         return this.instance;
     }
@@ -61,19 +53,5 @@ public class HttpWorkItem  {
 
     public ThrottlingGenericAsyncHandler getHandler() {
         return this.handler;
-    }
-
-    public void setClientId(String c) {
-    }
-
-    public void setChannel(String channel) {
-    }
-
-    public String getClientId() {
-        return null;
-    }
-
-    public String getChannel() {
-        return null;
     }
 }

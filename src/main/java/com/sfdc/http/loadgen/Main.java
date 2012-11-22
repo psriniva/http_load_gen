@@ -21,8 +21,10 @@ public class Main {
 
     public static void main(String[] args) {
         checkSystemPrerequisites();
-        RequestGenerator rg = new RequestGenerator(getConfigFileLocation());
-        Thread requestsThread = new Thread(rg);
+        //RequestGenerator rg = new RequestGenerator(getConfigFileLocation());
+        // COMMENTED THE BELOW LINE TO REFACTOR
+        //Thread requestsThread = new Thread(rg);
+        Thread requestsThread = null;
         requestsThread.start();
         Properties p = loadConfigs(getConfigFileLocation());
         boolean collectStats = Boolean.parseBoolean(p.getProperty("automatically_collect_operation_counts", "true"));
@@ -39,7 +41,7 @@ public class Main {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        rg.stop();
+        //rg.stop();
         try {
             requestsThread.join();
         } catch (InterruptedException e) {

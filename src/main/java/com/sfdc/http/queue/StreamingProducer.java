@@ -16,7 +16,7 @@ import java.util.concurrent.BlockingQueue;
 public class StreamingProducer implements ProducerInterface {
 //    public class StreamingProducer implements Runnable {
 
-    private final BlockingQueue<WorkItemInterface> queue;
+    private final BlockingQueue<HttpWorkItem> queue;
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamingProducer.class);
     //private int numHandshakes;
     //private SessionIdReader sessionIdReader;
@@ -37,7 +37,7 @@ public class StreamingProducer implements ProducerInterface {
         //this.instance = instance;
     }*/
 
-    public StreamingProducer(BlockingQueue<WorkItemInterface> queue, boolean collectQueueStats, StatsManager statsManager) {
+    public StreamingProducer(BlockingQueue<HttpWorkItem> queue, boolean collectQueueStats, StatsManager statsManager) {
         this.statsManager = statsManager;
         run = true;
         this.queue = queue;
@@ -74,7 +74,7 @@ public class StreamingProducer implements ProducerInterface {
     }*/
 
     @Override
-    public void publish(WorkItemInterface w) {
+    public void publish(HttpWorkItem w) {
         if (!run) {
             LOGGER.warn("PRODUCER IS STOPPED BUT ATTEMPT TO PUBLISH WAS MADE");
             return;

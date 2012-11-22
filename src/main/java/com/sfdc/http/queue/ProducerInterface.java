@@ -6,7 +6,7 @@ package com.sfdc.http.queue;
  *         Time: 7:16 PM
  */
 public interface ProducerInterface {
-    void publish(WorkItemInterface w);
+    void publish(HttpWorkItem w);
 
     void stop();
 }
