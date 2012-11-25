@@ -3,6 +3,7 @@ package com.sfdc.http.queue;
 import com.ning.http.client.Cookie;
 import com.sfdc.http.client.handler.ThrottlingGenericAsyncHandler;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -16,11 +17,14 @@ public class HttpWorkItem {
     private List<Cookie> cookies;
     private String operation;
     private ThrottlingGenericAsyncHandler handler;
+    private HashMap<String, String> headers;
+    private HashMap<String, String> parameters;
 
     public static final String GET = "GET";
     public static final String POST = "POST";
     public static final String PUT = "PUT";
     public static final String HEAD = "HEAD";
+    public static final String DELETE = "DELETE";
 
 
     public void setInstance(String i) {
@@ -53,5 +57,21 @@ public class HttpWorkItem {
 
     public ThrottlingGenericAsyncHandler getHandler() {
         return this.handler;
+    }
+
+    public HashMap<String, String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(HashMap<String, String> parameters) {
+        this.parameters = parameters;
+    }
+
+    public HashMap<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(HashMap<String, String> headers) {
+        this.headers = headers;
     }
 }

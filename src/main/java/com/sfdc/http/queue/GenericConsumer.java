@@ -1,8 +1,14 @@
 package com.sfdc.http.queue;
 
+import com.ning.http.client.Cookie;
 import com.sfdc.http.client.NingAsyncHttpClientImpl;
+import com.sfdc.http.client.handler.ThrottlingGenericAsyncHandler;
 import com.sfdc.stats.StatsManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -13,6 +19,7 @@ import java.util.concurrent.TimeUnit;
  *         Time: 9:35 PM
  */
 public class GenericConsumer implements ConsumerInterface {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GenericConsumer.class);
     protected final BlockingQueue<HttpWorkItem> queue;
     protected final Semaphore concurrencyPermit;
     protected final NingAsyncHttpClientImpl httpClient;
@@ -98,6 +105,33 @@ public class GenericConsumer implements ConsumerInterface {
     @Override
     public void processWorkItem(HttpWorkItem work) {
         //TODO:  implement http operations.
+        String instance = work.getInstance();
+        List<Cookie> cookies = work.getCookies();
+        ThrottlingGenericAsyncHandler handler = work.getHandler();
+        String operation = work.getOperation();
+        HashMap<String, String> headers = work.getHeaders();
+        HashMap<String, String> parameters = work.getParameters();
+        if (operation.equalsIgnoreCase(HttpWorkItem.GET)) {
+            LOGGER.debug("Beginning GET");
+            //httpClient.streamingHandshake(instance, sessionId, handler);
+        } else if (operation.equalsIgnoreCase(HttpWorkItem.POST)) {
+            LOGGER.debug("Beginning POST");
+            //httpClient.streamingConnect(instance, sessionId, cookies, clientID, handler);
+
+        } else if (operation.equalsIgnoreCase(HttpWorkItem.PUT)) {
+            LOGGER.debug("Beginning PUT");
+            //httpClient.streamingSubscribe(instance, sessionId, cookies, clientID, subscriptionChannel, handler);
+
+        } else if (operation.equalsIgnoreCase(HttpWorkItem.HEAD)) {
+            LOGGER.error("HEAD NOT IMPLEMENTED");
+
+        } else if (operation.equalsIgnoreCase(HttpWorkItem.DELETE)) {
+            LOGGER.error("DELETE NOT IMPLEMENTED");
+
+        } else {
+            LOGGER.error("Consumer dequeued a work item that it couldn't understand");
+        }
+
 
     }
 }
