@@ -3,11 +3,11 @@ package com.sfdc.http.queue;
 import com.sfdc.stats.StatsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import poc.SessionIdReader;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author psrinivasan
@@ -18,27 +18,25 @@ public class ProducerConsumerQueue implements Runnable {
     private final ProducerConsumerQueueConfig config;
     private final ProducerInterface producer;
     private ConsumerInterface consumer;
-    //private final LinkedBlockingDeque<StreamingWorkItem> queue;
     private final BlockingQueue<HttpWorkItem> queue;
     private final Semaphore concurrencyPermit;
     private static final Logger LOGGER = LoggerFactory.getLogger(ProducerConsumerQueue.class);
     private Thread consumerThread;
     public static final String QUEUE_STATS_METRIC = "Queue-Num-Elements";
     public static final String CONCURRENCY_STATS_METRIC = "Num-ConcurrencyPermits-Used";
+    private AtomicBoolean isStarted;
 
 
     public ProducerConsumerQueue(ProducerConsumerQueueConfig config) throws Exception {
         this.config = config;
         queue = new LinkedBlockingDeque<HttpWorkItem>();
-        SessionIdReader sessionIdReader = config.getSessionIdReader(config.sessionsFile);
-        producer = new StreamingProducer(queue, config.collectQueueStats, StatsManager.getInstance());
+        producer = new GenericProducer(queue, config.collectQueueStats, StatsManager.getInstance());
         concurrencyPermit = config.getConcurrencyPermit();
+        consumer = new GenericConsumer(queue, concurrencyPermit, config.collectQueueStats, StatsManager.getInstance(), config.collectConcurrencyPermitStats);
+        isStarted = new AtomicBoolean(false);
+
     }
 
-    public ProducerConsumerQueue initializeConsumer() {
-        consumer = new GenericConsumer(queue, concurrencyPermit, config.collectQueueStats, StatsManager.getInstance(), config.collectConcurrencyPermitStats);
-        return this;
-    }
 
     public ProducerConsumerQueueConfig getConfig() {
         return config;
@@ -61,15 +59,16 @@ public class ProducerConsumerQueue implements Runnable {
     }
 
     public void startPCQueue() throws Exception {
-
-        //Thread producerThread = new Thread(producer);
+        if (!isStarted.compareAndSet(false, true)) {
+            LOGGER.error("DUPLICATE ATTEMPT TO START PRODUCER/CONSUMER!");
+        }
         consumerThread = new Thread(consumer);
-
-        //producerThread.start();
         consumerThread.start();
-        System.out.println("started producers and consumers");
-        //producerThread.join();
-        //consumerThread.join();
+        System.out.println("Started Consumer");
+    }
+
+    public boolean isStarted() {
+        return isStarted.get();
     }
 
     /*
@@ -92,9 +91,9 @@ public class ProducerConsumerQueue implements Runnable {
         }
         int num_permits_available = concurrencyPermit.availablePermits();
         if (num_permits_available < config.concurrency) {
-            LOGGER.info("Some connections are in flight, waiting 10 seconds before shutting down");
+            LOGGER.info("Some connections are in flight, " + (config.concurrency - num_permits_available) + " permits are given out.  waiting 10 seconds before shutting down");
             try {
-                Thread.sleep(10000);
+                Thread.sleep(2100);
             } catch (InterruptedException e) {
                 LOGGER.warn("Interrupted while stopping producer/consumer/queue. May lose requests");
                 e.printStackTrace();

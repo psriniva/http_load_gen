@@ -70,7 +70,7 @@ public class GenericAsyncHandler implements com.ning.http.client.AsyncHandler {
         stopWatch.reset();
         Response r = builder.build();
         //System.out.println("response body " + r.getResponseBody());
-        byte[] bytes = r.getResponseBodyAsBytes();
+        //byte[] bytes = r.getResponseBodyAsBytes();
         LOGGER.debug("status code = " + r.getStatusCode());
         LOGGER.debug("status text = " + r.getStatusText());
         LOGGER.debug("output bytes = " + r.getResponseBody());

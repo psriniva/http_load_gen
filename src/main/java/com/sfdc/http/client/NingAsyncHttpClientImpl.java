@@ -10,6 +10,7 @@ import com.ning.http.client.*;
 import com.ning.http.client.Cookie;
 import com.sfdc.http.client.filter.ThrottlingRequestFilter;
 import com.sfdc.http.client.handler.GenericAsyncHandler;
+import com.sfdc.http.client.handler.ThrottlingGenericAsyncHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -21,7 +22,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
@@ -40,22 +43,6 @@ public class NingAsyncHttpClientImpl extends com.ning.http.client.AsyncHttpClien
                     + "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' " +
                     "xmlns:urn='urn:partner.soap.sforce.com'><soapenv:Body>";
     private static final String ENV_END = "</soapenv:Body></soapenv:Envelope>";
-
-    /*
-     * the concurrency permit semaphore is a no op.  refactor it!
-     */
-//    public NingAsyncHttpClientImpl(Semaphore concurrencyPermit) {
-//        super(new AsyncHttpClientConfig.Builder()
-//                .setIOThreadMultiplier(IO_THREAD_MULTIPLIER)
-//                .setMaximumConnectionsTotal(MAX_CONNECTIONS_TOTAL)
-//                .setMaximumConnectionsPerHost(MAX_CONNECTIONS_PER_HOST)
-//                .addRequestFilter(new ThrottlingRequestFilter())
-//                        //.setIdleConnectionTimeoutInMs(125000)  // calling this did not help cope with a 120s long poll.
-//                .setRequestTimeoutInMs(125000)         //ditto.
-//                //.addResponseFilter(new ThrottlingResponseFilter(concurrencyPermit))  //yipee dont need this any more since
-//                //concurrency (permit) throttling is done by the genericconsumer and the throttlinggenericasynchandler
-//                .build());
-//    }
 
     public NingAsyncHttpClientImpl() {
         super(new AsyncHttpClientConfig.Builder()
@@ -92,6 +79,43 @@ public class NingAsyncHttpClientImpl extends com.ning.http.client.AsyncHttpClien
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
+        }
+        return future;
+    }
+
+    public Future<Response> startGet(String instance,
+                                     HashMap<String, String> headers,
+                                     HashMap<String, String> parameters,
+                                     List<Cookie> cookies,
+                                     ThrottlingGenericAsyncHandler handler) {
+        BoundRequestBuilder requestBuilder = prepareGet(instance);
+        Set<String> keys;
+        if (headers != null) {
+            keys = headers.keySet();
+            for (String key : keys) {
+                requestBuilder = requestBuilder.addHeader(key, headers.get(key));
+            }
+        }
+        if (parameters != null) {
+            keys = parameters.keySet();
+            for (String key : keys) {
+                requestBuilder = requestBuilder.addParameter(key, headers.get(key));
+            }
+        }
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                requestBuilder.addCookie(cookie);
+            }
+        }
+        Future<Response> future = null;
+        try {
+            if (handler == null) {
+                future = requestBuilder.execute();
+            } else {
+                future = requestBuilder.execute(handler);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return future;
     }

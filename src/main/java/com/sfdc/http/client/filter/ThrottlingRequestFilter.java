@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
  * @author psrinivasan
  *         Date: 8/31/12
  *         Time: 6:33 PM
+ *         ONLY THING THIS FILTER DOES IS TO GATHER TIMESTAMP JUST BEFORE SENDING THE REQUEST OUT.
  *         Throttling RequestFilter does NOT throttle.  Throttling happens at the StreamingConsumer.
  *         This request filter is still useful to gather stats such as the timestamp when a request
  *         was sent to the server.

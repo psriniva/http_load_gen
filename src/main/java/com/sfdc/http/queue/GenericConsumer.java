@@ -113,14 +113,12 @@ public class GenericConsumer implements ConsumerInterface {
         HashMap<String, String> parameters = work.getParameters();
         if (operation.equalsIgnoreCase(HttpWorkItem.GET)) {
             LOGGER.debug("Beginning GET");
-            //httpClient.streamingHandshake(instance, sessionId, handler);
+            httpClient.startGet(instance, headers, parameters, cookies, handler);
         } else if (operation.equalsIgnoreCase(HttpWorkItem.POST)) {
             LOGGER.debug("Beginning POST");
-            //httpClient.streamingConnect(instance, sessionId, cookies, clientID, handler);
 
         } else if (operation.equalsIgnoreCase(HttpWorkItem.PUT)) {
             LOGGER.debug("Beginning PUT");
-            //httpClient.streamingSubscribe(instance, sessionId, cookies, clientID, subscriptionChannel, handler);
 
         } else if (operation.equalsIgnoreCase(HttpWorkItem.HEAD)) {
             LOGGER.error("HEAD NOT IMPLEMENTED");

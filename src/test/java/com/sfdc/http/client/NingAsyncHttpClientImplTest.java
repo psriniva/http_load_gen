@@ -2,7 +2,6 @@ package com.sfdc.http.client;
 
 import com.ning.http.client.Cookie;
 import com.ning.http.client.Response;
-import com.sfdc.http.util.SoapLoginUtil;
 import junit.framework.TestCase;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -12,6 +11,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -31,12 +32,12 @@ public class NingAsyncHttpClientImplTest extends TestCase {
     public void setUp() throws Exception {
         //String[] credentials = SoapLoginUtil.login("dpham@180.private.streaming.20.org8", "123456", "https://ist6.soma.salesforce.com/");
         //String[] credentials = SoapLoginUtil.login("dpham@178.private.streaming.20.org2006", "123456", "https://ist6.soma.salesforce.com/");
-        String[] credentials = SoapLoginUtil.login("admin@ist8.streaming.20.systest.org10496", "123456", "https://ist8.soma.salesforce.com/");
+        //String[] credentials = SoapLoginUtil.login("admin@ist8.streaming.20.systest.org10496", "123456", "https://ist8.soma.salesforce.com/");
 
 
-        sessionId = credentials[0];
+        sessionId = "00D30000001IZfg!AREAQOLJ1VXWUetICBk_XYsNO_25JHZziZNnjMY45WxPGmTKa4GevAnMx.zkplRGkLC64e9Hx0rt3ip.KnfC0CfynG5shaCY";//credentials[0];
         //sessionId = "00D30000001IZ8g!AREAQLoEY0wC60qdHyw07EarfsG9s.MnbBVAq0.49FSQNoy0oyj5SaC7sqtvUEhpNvlMojZgOUKTy3hWbLIoqoVzwaUJ8Xns";
-        instance = credentials[1];
+        instance = "https://ist8.soma.salesforce.com/";//credentials[1];
         asyncHttpClient_base = new NingAsyncHttpClientImpl();
         //asyncHttpClient_concurrencyControl_base = new NingAsyncHttpClientImpl(new Semaphore(1));
 
@@ -45,6 +46,15 @@ public class NingAsyncHttpClientImplTest extends TestCase {
     public void tearDown() throws Exception {
 
     }
+
+
+    public void testGet() throws ExecutionException, InterruptedException {
+        Future<Response> future = asyncHttpClient_base.startGet("http://www.gnu.org/", null, null, null, null);
+        Response response = future.get();
+        System.out.println(response.getStatusCode());
+        System.out.println(response.getStatusText());
+    }
+
 
     public void testLogin_no_concurrency_control() throws Exception {
         login_base_test(asyncHttpClient_base);
@@ -63,6 +73,22 @@ public class NingAsyncHttpClientImplTest extends TestCase {
         System.out.println("session id " + credentials[0] + " instance " + credentials[1]);
         //System.out.println(response.getResponseBody());
 
+    }
+
+    public void test_http_get(NingAsyncHttpClientImpl asyncHttpClient) {
+        Future<Response> future = asyncHttpClient.startGet("http://adhoc-app1-17-sfm.ops.sfdc.net:8080/", null, null, null, null);
+        Response response = null;
+        try {
+            response = future.get(10000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+        assertEquals(200, response.getStatusCode());
+        assertEquals("OK", response.getStatusText());
     }
 
     public void soql_base_test(NingAsyncHttpClientImpl asyncHttpClient) throws Exception {
