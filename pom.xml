@@ -5,8 +5,8 @@
     <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>asyncstreamingclient</groupId>
-    <artifactId>asyncstreamingclient</artifactId>
+    <groupId>http_load_gen</groupId>
+    <artifactId>http_load_gen</artifactId>
     <version>1.0</version>
     <dependencies>
         <dependency>

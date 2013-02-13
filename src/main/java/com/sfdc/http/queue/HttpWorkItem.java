@@ -25,6 +25,7 @@ public class HttpWorkItem {
     public static final String PUT = "PUT";
     public static final String HEAD = "HEAD";
     public static final String DELETE = "DELETE";
+    private String postBody;
 
 
     public void setInstance(String i) {
@@ -73,5 +74,13 @@ public class HttpWorkItem {
 
     public void setHeaders(HashMap<String, String> headers) {
         this.headers = headers;
+    }
+
+    public void setPostBody(String postBody) {
+        this.postBody = postBody;
+    }
+
+    public String getPostBody() {
+        return postBody;
     }
 }

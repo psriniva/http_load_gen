@@ -111,11 +111,13 @@ public class GenericConsumer implements ConsumerInterface {
         String operation = work.getOperation();
         HashMap<String, String> headers = work.getHeaders();
         HashMap<String, String> parameters = work.getParameters();
+        String body = work.getPostBody();
         if (operation.equalsIgnoreCase(HttpWorkItem.GET)) {
             LOGGER.debug("Beginning GET");
             httpClient.startGet(instance, headers, parameters, cookies, handler);
         } else if (operation.equalsIgnoreCase(HttpWorkItem.POST)) {
             LOGGER.debug("Beginning POST");
+            httpClient.startPost(instance, headers, body, cookies, handler);
 
         } else if (operation.equalsIgnoreCase(HttpWorkItem.PUT)) {
             LOGGER.debug("Beginning PUT");

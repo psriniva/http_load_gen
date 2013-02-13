@@ -120,6 +120,40 @@ public class NingAsyncHttpClientImpl extends com.ning.http.client.AsyncHttpClien
         return future;
     }
 
+    public Future<Response> startPost(String instance,
+                                      HashMap<String, String> headers,
+                                      String body,
+                                      List<Cookie> cookies,
+                                      ThrottlingGenericAsyncHandler handler) {
+        BoundRequestBuilder requestBuilder = preparePost(instance);
+
+        Set<String> keys;
+        if (headers != null) {
+            keys = headers.keySet();
+            for (String key : keys) {
+                requestBuilder = requestBuilder.addHeader(key, headers.get(key));
+            }
+        }
+        requestBuilder = requestBuilder.setBody(body);
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                requestBuilder.addCookie(cookie);
+            }
+        }
+        Future<Response> future = null;
+        try {
+            if (handler == null) {
+                future = requestBuilder.execute();
+            } else {
+                future = requestBuilder.execute(handler);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return future;
+    }
+
     public Future<Response> login(String instance, String userName, String password) {
         return login(instance, userName, password, returnAppropriateHandler());
     }

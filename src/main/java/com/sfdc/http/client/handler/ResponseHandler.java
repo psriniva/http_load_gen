@@ -1,5 +1,7 @@
 package com.sfdc.http.client.handler;
 
+import com.sfdc.http.HttpClient;
+
 /**
  * @author psrinivasan
  *         Date: 12/5/12
@@ -10,5 +12,5 @@ public interface ResponseHandler {
     public void onCompleted(int statusCode,
                             String statusText,
                             String responseBody,
-                            String contentType);
+                            String contentType, HttpClient httpClient);
 }

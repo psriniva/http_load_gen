@@ -57,6 +57,13 @@ public class HttpClient {
 
     }
 
+    /**
+     * ******************************************************************
+     * <p/>
+     * GET METHODS
+     * <p/>
+     * *******************************************************************
+     */
     public void startGet(String url,
                          HashMap<String, String> headers,
                          HashMap<String, String> parameters,
@@ -66,7 +73,7 @@ public class HttpClient {
         workItem.setCookies(cookies);
         workItem.setHeaders(headers);
         workItem.setParameters(parameters);
-        workItem.setHandler(new ThrottlingGenericAsyncHandler(producerConsumerQueue.getConcurrencyPermit(), StatsManager.getInstance(), responseHandler));
+        workItem.setHandler(new ThrottlingGenericAsyncHandler(producerConsumerQueue.getConcurrencyPermit(), StatsManager.getInstance(), responseHandler, null));
         workItem.setOperation(HttpWorkItem.GET);
         workItem.setInstance(url);
         producerConsumerQueue.getProducer().publish(workItem);
@@ -91,7 +98,7 @@ public class HttpClient {
                          HashMap<String, String> headers,
                          HashMap<String, String> parameters,
                          ArrayList<Cookie> cookies) {
-        startGet(url, headers, parameters, cookies, new ThrottlingGenericAsyncHandler(producerConsumerQueue.getConcurrencyPermit(), StatsManager.getInstance(), null));
+        startGet(url, headers, parameters, cookies, new ThrottlingGenericAsyncHandler(producerConsumerQueue.getConcurrencyPermit(), StatsManager.getInstance(), null, null));
     }
 
     public void startGet(String url) {
@@ -100,5 +107,52 @@ public class HttpClient {
 
     public void startGet(String url, ResponseHandler responseHandler) {
         startGet(url, this.requestHeaders, this.parameters, this.cookies, responseHandler);
+    }
+
+    /**
+     * ******************************************************************
+     * <p/>
+     * POST METHODS
+     * <p/>
+     * *******************************************************************
+     */
+    public void startPost(String url,
+                          HashMap<String, String> headers,
+                          String body,
+                          ArrayList<Cookie> cookies,
+                          ResponseHandler responseHandler) {
+        HttpWorkItem workItem = new HttpWorkItem();
+        workItem.setCookies(cookies);
+        workItem.setHeaders(headers);
+        workItem.setPostBody(body);
+        workItem.setHandler(new ThrottlingGenericAsyncHandler(producerConsumerQueue.getConcurrencyPermit(), StatsManager.getInstance(), responseHandler, null));
+        workItem.setOperation(HttpWorkItem.POST);
+        workItem.setInstance(url);
+        producerConsumerQueue.getProducer().publish(workItem);
+    }
+
+    public void startPost(String url,
+                          HashMap<String, String> headers,
+                          String body,
+                          ArrayList<Cookie> cookies,
+                          ThrottlingGenericAsyncHandler throttlingGenericAsyncHandler) {
+        HttpWorkItem workItem = new HttpWorkItem();
+        workItem.setCookies(cookies);
+        workItem.setHeaders(headers);
+        workItem.setPostBody(body);
+        workItem.setHandler(throttlingGenericAsyncHandler);
+        workItem.setOperation(HttpWorkItem.POST);
+        workItem.setInstance(url);
+        producerConsumerQueue.getProducer().publish(workItem);
+    }
+
+    public void startPost(String url,
+                          String body) {
+        HttpWorkItem workItem = new HttpWorkItem();
+        workItem.setOperation(HttpWorkItem.POST);
+        workItem.setInstance(url);
+        workItem.setPostBody(body);
+        workItem.setHandler(new ThrottlingGenericAsyncHandler(producerConsumerQueue.getConcurrencyPermit(), StatsManager.getInstance(), null, this));
+        producerConsumerQueue.getProducer().publish(workItem);
     }
 }
